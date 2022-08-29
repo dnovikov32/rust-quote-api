@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    container_name: quote-api-postgres
+    build:
+      context: ./
+      dockerfile: ./.docker/postgres/dockerfile
+    env_file:
+      - .env
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+    networks:
+      - quote-api
+    expose:
+      - 5432
+    ports:
+      - '5432:5432'
+
+networks:
+  quote-api:
+
+volumes:
+  postgres:
