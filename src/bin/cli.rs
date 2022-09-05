@@ -1,9 +1,13 @@
-use common::diesel::prelude::*;
-use common::model::*;
-use common::schema::quote::dsl::*;
+#[macro_use]
+extern crate diesel;
+
+use diesel::prelude::*;
+use quote_api::*;
+use quote_api::model::*;
+use quote_api::schema::quote::dsl::*;
 
 fn main() {
-    let connection = common::db_connection();
+    let connection = db_connection();
     let posts = quote
         .order(id.asc())
         .load::<Quote>(&connection)

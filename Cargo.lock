@@ -165,21 +165,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cli"
-version = "0.1.0"
-dependencies = [
- "common",
-]
-
-[[package]]
-name = "common"
-version = "0.1.0"
-dependencies = [
- "diesel",
- "dotenv",
-]
-
-[[package]]
 name = "cookie"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -852,6 +837,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "quote-api"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "dotenv",
+ "rocket",
+]
+
+[[package]]
 name = "rand"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1077,13 +1071,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "server"
-version = "0.1.0"
-dependencies = [
- "rocket",
 ]
 
 [[package]]

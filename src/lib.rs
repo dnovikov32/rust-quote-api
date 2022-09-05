@@ -1,5 +1,5 @@
 #[macro_use]
-pub extern crate diesel;
+extern crate diesel;
 extern crate dotenv;
 
 use diesel::prelude::*;
