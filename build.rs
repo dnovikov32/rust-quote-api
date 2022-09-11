@@ -19,8 +19,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     std::fs::rename(
         "src/tinkoff.public.invest.api.contract.v1.rs",
-        "src/tinkoff.protobuf.rs"
-    );
+        "src/tinkoff.rs"
+    ).unwrap();
 
     Ok(())
 }

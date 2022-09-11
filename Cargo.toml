@@ -9,7 +9,8 @@ dotenv = "0.15.0"
 prost = "0.11.0"
 prost-types = "0.11.1"
 rocket = "0.5.0-rc.2"
-tonic = "0.8.0"
+tonic = { version = "0.8.1", features = ["gzip", "tls", "tls-roots"] }
+tokio = "1.21.0"
 
 [build-dependencies]
 tonic-build = "0.8.0"

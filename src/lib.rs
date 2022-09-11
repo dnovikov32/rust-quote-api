@@ -2,13 +2,14 @@
 extern crate diesel;
 extern crate dotenv;
 
-use diesel::prelude::*;
 use diesel::pg::PgConnection;
+use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
 
-pub mod schema;
 pub mod model;
+pub mod schema;
+pub mod tinkoff;
 
 pub fn db_connection() -> PgConnection {
     dotenv().ok();
