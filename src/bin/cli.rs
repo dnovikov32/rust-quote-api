@@ -46,13 +46,7 @@ use tonic::transport::Endpoint;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
-    let host = env::var("TINKOFF_API_HOST").unwrap();
-    let secret = env::var("TINKOFF_API_TOKEN").unwrap();
-    // let tls = ClientTlsConfig::new();
-
-    let channel = Channel::from_static("https://invest-public-api.tinkoff.ru:443/")
-        .connect()
-        .await?;
+    let channel = create_channel().await?;
 
     let mut client = InstrumentsServiceClient::with_interceptor(
         channel,
@@ -66,30 +60,38 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let response = client.shares(request).await?;
-    // let response = client.shares(request).await.unwrap().into_inner();
 
-    // println!("RESPONSE 1111 = {:?}", response.into_inner().instruments);
     for instrument in response.into_inner().instruments {
         println!("{}", instrument.figi);
     }
 
     Ok(())
+}
 
+async fn create_channel() -> Result<Channel, Box<dyn std::error::Error>> {
+    let host: String = env::var("TINKOFF_API_HOST").unwrap().to_owned();
+    let static_host: &str = Box::leak(host.into_boxed_str());
+
+    let channel = Channel::from_static(static_host)
+        .connect()
+        .await?;
+
+    Ok(channel)
 }
 
 fn intercept(req: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
-    println!("Intercepting request: {:?}", req);
-
     let mut request = req;
+    let secret = env::var("TINKOFF_API_TOKEN").unwrap();
+
     request.metadata_mut().append(
         "authorization",
-        format!("Bearer {}", "t.XrALhgBIXiOEvvEhnKp0neSZqxaykaKaBNsIWsjo9Q6Ec0MJ6vdcnr97xPf0W0mCSoZx302VZc67CNkcKfMIAw").parse().unwrap(),
+        format!("Bearer {}", secret).parse().unwrap(),
     );
-
-    println!("Intercepting request 2: {:?}", request);
 
     Ok(request)
 }
+
+
 
 // fn intercept(req: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
 //     println!("Intercepting request: {:?}", req);
