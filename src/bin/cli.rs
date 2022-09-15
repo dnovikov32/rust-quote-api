@@ -4,54 +4,26 @@ extern crate diesel;
 use dotenv::dotenv;
 use diesel::prelude::*;
 use std::env;
-
-use quote_api::*;
-use quote_api::model::*;
-use quote_api::schema::quote::dsl::*;
-use quote_api::tinkoff::instruments_service_client::InstrumentsServiceClient;
-use quote_api::tinkoff::InstrumentsRequest;
-
 use tonic::{metadata::MetadataValue, transport::Channel, service::Interceptor, Status};
 use tonic::codegen::InterceptedService;
 use tonic::transport::Endpoint;
-
-
-//
-// #[derive(Debug)]
-// pub struct DefaultInterceptor {
-//     token: String,
-// }
-//
-//
-// impl Interceptor for DefaultInterceptor {
-//     fn call(&mut self, request: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
-//         let mut req = request;
-//         req.metadata_mut().append(
-//             "authorization",
-//             format!("bearer {}", self.token).parse().unwrap(),
-//         );
-//         // req.metadata_mut().append(
-//         //     "x-tracking-id",
-//         //     uuid::Uuid::new_v4().to_string().parse().unwrap(),
-//         // );
-//         // req.metadata_mut()
-//         //     .append("x-app-name", "ovr.tinkoffInvestRust".parse().unwrap());
-//
-//         Ok(req)
-//     }
-// }
-
+use quote_api::*;
+use quote_api::model::*;
+use quote_api::schema::quote::dsl::*;
+use quote_api::tinkoff::proto::InstrumentsRequest;
+use quote_api::tinkoff::TinkoffService;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
-    let channel = create_channel().await?;
-
-    let mut client = InstrumentsServiceClient::with_interceptor(
-        channel,
-        intercept,
+    let service = TinkoffService::new(
+        env::var("TINKOFF_API_HOST").unwrap(),
+        env::var("TINKOFF_API_TOKEN").unwrap()
     );
+
+    let channel = service.create_channel().await?;
+    let mut instruments = service.instruments(channel).await?;
 
     let request = tonic::Request::new(
         InstrumentsRequest {
@@ -59,37 +31,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     );
 
-    let response = client.shares(request).await?;
+    let response = instruments.shares(request).await?;
 
     for instrument in response.into_inner().instruments {
-        println!("{}", instrument.figi);
+        println!("{:?}", instrument);
     }
 
     Ok(())
 }
 
-async fn create_channel() -> Result<Channel, Box<dyn std::error::Error>> {
-    let host: String = env::var("TINKOFF_API_HOST").unwrap().to_owned();
-    let static_host: &str = Box::leak(host.into_boxed_str());
 
-    let channel = Channel::from_static(static_host)
-        .connect()
-        .await?;
 
-    Ok(channel)
-}
 
-fn intercept(req: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
-    let mut request = req;
-    let secret = env::var("TINKOFF_API_TOKEN").unwrap();
-
-    request.metadata_mut().append(
-        "authorization",
-        format!("Bearer {}", secret).parse().unwrap(),
-    );
-
-    Ok(request)
-}
 
 
 

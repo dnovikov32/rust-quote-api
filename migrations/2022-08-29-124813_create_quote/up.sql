@@ -1,4 +1,0 @@
-CREATE TABLE quote (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL
-)
