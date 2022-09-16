@@ -10,7 +10,7 @@ use tonic::{metadata::MetadataValue, transport::Channel, service::Interceptor, S
 use tonic::codegen::InterceptedService;
 use tonic::transport::Endpoint;
 use quote_api::db_connection;
-use quote_api::model::{ NewShare };
+use quote_api::model::{ Share, NewShare };
 use quote_api::schema::share;
 use quote_api::tinkoff::proto::{InstrumentsRequest, SharesResponse};
 use quote_api::tinkoff::TinkoffService;
@@ -19,13 +19,21 @@ use quote_api::tinkoff::TinkoffService;
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 
+    let connection = db_connection();
     let response = fetch_shares().await?;
 
-    for instrument in response.into_inner().instruments {
-        insert_share(
-            NewShare::from_response(instrument)
-        );
+    let shares = Share::find_by(&connection);
+
+    for share in shares {
+        println!("{:?}", share);
     }
+
+    // for instrument in response.into_inner().instruments {
+    //     Share::insert_or_update(
+    //         NewShare::from_response(instrument),
+    //         &connection
+    //     );
+    // }
 
     Ok(())
 }
@@ -49,21 +57,6 @@ async fn fetch_shares() -> Result<tonic::Response<SharesResponse>, Box<dyn Error
 
     Ok(response)
 }
-
-fn insert_share(new_share: NewShare) -> bool {
-    let connection = db_connection();
-
-    diesel::insert_into(share::table)
-        .values(&new_share)
-        .on_conflict(share::figi)
-        .do_update()
-        .set(&new_share)
-        .execute(&connection)
-        .is_ok()
-}
-
-
-
 
 
 //

@@ -1,9 +1,10 @@
 use crate::schema::share;
 use crate::tinkoff::proto::Share as TinkoffShare;
 use chrono::{ NaiveDateTime, Utc };
-use diesel::AsChangeset;
-use diesel::Insertable;
-use diesel::Queryable;
+use diesel;
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use diesel::{ AsChangeset, Insertable, Queryable };
 
 #[derive(Debug, Queryable)]
 pub struct Share {
@@ -17,6 +18,25 @@ pub struct Share {
     pub first_1min_candle_at: NaiveDateTime,
     pub first_1day_candle_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+impl Share {
+    pub fn insert_or_update(new_share: NewShare, connection: &PgConnection) -> bool {
+        diesel::insert_into(share::table)
+            .values(&new_share)
+            .on_conflict(share::figi)
+            .do_update()
+            .set(&new_share)
+            .execute(connection)
+            .is_ok()
+    }
+
+    pub fn find_all(connection: &PgConnection) -> Vec<Share> {
+        share::table
+            .order(share::name.asc())
+            .load::<Share>(connection)
+            .expect("Error loading shares")
+    }
 }
 
 #[derive(AsChangeset, Debug, Insertable)]
