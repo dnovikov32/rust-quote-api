@@ -6,7 +6,6 @@ use tonic::service::Interceptor;
 use tonic::{Request, Status};
 use tonic::transport::Channel;
 use proto::instruments_service_client::InstrumentsServiceClient;
-use proto::InstrumentsRequest;
 
 #[derive(Debug)]
 pub struct TinkoffInterceptor {
