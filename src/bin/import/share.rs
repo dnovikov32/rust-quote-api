@@ -5,13 +5,11 @@ use dotenv::dotenv;
 use diesel::prelude::*;
 use std::env;
 use std::error::Error;
-use chrono::NaiveDateTime;
-use tonic::{metadata::MetadataValue, transport::Channel, service::Interceptor, Status};
-use tonic::codegen::InterceptedService;
-use tonic::transport::Endpoint;
+use indicatif::ProgressBar;
 use quote_api::db_connection;
-use quote_api::model::{ Share, NewShare };
 use quote_api::schema::share;
+use quote_api::share::entity::{NewShare, Share};
+use quote_api::share::repository::ShareRepository;
 use quote_api::tinkoff::proto::{InstrumentsRequest, SharesResponse};
 use quote_api::tinkoff::TinkoffService;
 
@@ -19,21 +17,23 @@ use quote_api::tinkoff::TinkoffService;
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 
-    let connection = db_connection();
-    let response = fetch_shares().await?;
+    let instruments = fetch_shares()
+        .await?
+        .into_inner()
+        .instruments;
 
-    let shares = Share::find_by(&connection);
+    let db_connection = db_connection();
+    let repository = ShareRepository::new(&db_connection);
+    let progress_bar = ProgressBar::new(instruments.len().try_into().unwrap());
 
-    for share in shares {
-        println!("{:?}", share);
+    for instrument in instruments {
+        let new_share = NewShare::from_response(instrument);
+
+        repository.insert_or_update(new_share);
+
+        progress_bar.inc(1);
+        progress_bar.finish_with_message("Done");
     }
-
-    // for instrument in response.into_inner().instruments {
-    //     Share::insert_or_update(
-    //         NewShare::from_response(instrument),
-    //         &connection
-    //     );
-    // }
 
     Ok(())
 }
@@ -57,16 +57,3 @@ async fn fetch_shares() -> Result<tonic::Response<SharesResponse>, Box<dyn Error
 
     Ok(response)
 }
-
-
-//
-// let posts = quote
-//     .order(id.asc())
-//     .load::<Quote>(&connection)
-//     .expect("Error loading quotes");
-//
-// println!("Displaying {} posts", posts.len());
-//
-// for post in posts {
-//     println!("{} - {}", post.id, post.title);
-// }

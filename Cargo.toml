@@ -7,6 +7,7 @@ edition = "2021"
 chrono = "0.4.22"
 diesel = { version = "1.4.4", features = ["postgres", "chrono"] }
 dotenv = "0.15.0"
+indicatif = "0.5.1"
 prost = "0.11.0"
 prost-types = "0.11.1"
 rocket = "0.5.0-rc.2"
@@ -21,5 +22,5 @@ name = "server"
 path = "src/bin/server.rs"
 
 [[bin]]
-name = "cli"
-path = "src/bin/cli.rs"
+name = "import-share"
+path = "src/bin/import/share.rs"

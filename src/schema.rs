@@ -1,6 +1,4 @@
-// @generated automatically by Diesel CLI.
-
-diesel::table! {
+table! {
     share (id) {
         id -> Int4,
         figi -> Varchar,
