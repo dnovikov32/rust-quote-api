@@ -30,4 +30,11 @@ impl<'a> ShareRepository<'_> {
             .expect("Failed on find all shares")
     }
 
+    pub fn find_by_ticker(&self, ticker: String) -> Share {
+        share::table
+            .filter(share::ticker.eq(ticker))
+            .first::<Share>(self.connection)
+            .expect("Failed find share by ticker")
+    }
+
 }

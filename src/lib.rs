@@ -10,6 +10,7 @@ use std::env;
 pub mod schema;
 pub mod tinkoff;
 pub mod share;
+pub mod candle;
 
 pub fn db_connection() -> PgConnection {
     dotenv().ok();

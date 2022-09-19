@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.4.22"
+clap = { version = "3.2.5", features = ["derive"] }
 diesel = { version = "1.4.4", features = ["postgres", "chrono"] }
 dotenv = "0.15.0"
 indicatif = "0.5.1"
@@ -24,3 +25,7 @@ path = "src/bin/server.rs"
 [[bin]]
 name = "import-share"
 path = "src/bin/import/share.rs"
+
+[[bin]]
+name = "import-candle"
+path = "src/bin/import/candle.rs"
