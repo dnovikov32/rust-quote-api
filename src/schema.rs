@@ -1,4 +1,6 @@
-table! {
+// @generated automatically by Diesel CLI.
+
+diesel::table! {
     candle (id) {
         id -> Int4,
         share_id -> Int4,
@@ -11,7 +13,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     share (id) {
         id -> Int4,
         figi -> Varchar,
@@ -26,9 +28,9 @@ table! {
     }
 }
 
-joinable!(candle -> share (share_id));
+diesel::joinable!(candle -> share (share_id));
 
-allow_tables_to_appear_in_same_query!(
+diesel::allow_tables_to_appear_in_same_query!(
     candle,
     share,
 );

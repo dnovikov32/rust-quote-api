@@ -2,7 +2,6 @@
 extern crate diesel;
 
 use dotenv::dotenv;
-use diesel::prelude::*;
 use std::env;
 use std::error::Error;
 use indicatif::ProgressBar;
@@ -30,10 +29,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let new_share = NewShare::from_response(instrument);
 
         repository.insert_or_update(new_share);
-
         progress_bar.inc(1);
-        progress_bar.finish_with_message("Done");
     }
+
+    progress_bar.finish_with_message("Done");
 
     Ok(())
 }
