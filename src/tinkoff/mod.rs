@@ -6,6 +6,7 @@ use tonic::service::Interceptor;
 use tonic::{Request, Status};
 use tonic::transport::Channel;
 use proto::instruments_service_client::InstrumentsServiceClient;
+use crate::tinkoff::proto::market_data_service_client::MarketDataServiceClient;
 
 #[derive(Debug)]
 pub struct TinkoffInterceptor {
@@ -62,6 +63,20 @@ impl TinkoffService {
             }
         );
         
+        Ok(client)
+    }
+
+    pub async fn market_data(
+        &self,
+        channel: Channel
+    ) -> Result<MarketDataServiceClient<InterceptedService<Channel, TinkoffInterceptor>>, Box<dyn Error>> {
+        let client = MarketDataServiceClient::with_interceptor(
+            channel,
+            TinkoffInterceptor {
+                token: self.token.clone()
+            }
+        );
+
         Ok(client)
     }
 
